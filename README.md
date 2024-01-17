@@ -1,6 +1,7 @@
 # Data analysis portfolio!!!
 
 Hello!
+
 Welcome to this portfolio. My name is Ebenezer Bediam Nonbo, and I am excited to have you here!
 
 In this repository, you will come across several folders and sub-folders that contain projects that demonstrate the following, but not limited to the following skills: data gathering with APIs, data wrangling, data exploration, statistical analysis, machine learning, data visualisation, presentation skills, etc… A majority of my projects are done using R and Python programming languages. Some of the most used packages are: Pandas, Numpy, Seaborn and Matplotlib in Python and: Ggplot2, Dplyr, Caret, Plotly, Stringr, Tidyr, Readr, Shiny in R.
