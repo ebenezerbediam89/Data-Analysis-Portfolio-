@@ -9,9 +9,6 @@ output: html_document
 
 Using-Sales-data-to-iIdentifying-Product-Bundles-in-R
 
-The weekly sales transaction dataset consists of weekly purchased quantities of 800 products over 52 weeks. Normalised values are provided too. The objective of this data science project in R is to find out product bundles that can be put together on sale. Typically Market Basket Analysis was used to identify such bundles, here we are going to compare the relative importance of time series clustering in identifying product bundles.
-
-
 ```{r}
 df = read.csv('https://archive.ics.uci.edu/ml/machine-learning-databases/00396/Sales_Transactions_Dataset_Weekly.csv')
 
