@@ -12,6 +12,6 @@ I currently work as a freelance strategic advisor helping companies, consultanci
 
 My data journey began in 2019 after my BSc in mathematics at the University of Douala. This discovery of the many advantages of transforming data into information to give companies a considerable competitive edge led me to take a Master's degree in mathematical modelling in economics and finance, as well as several online certificates in a variety of fields.
 
-My background in mathematics made it much easier for me to learn, integrate and use the various software programmes that were essential to achieving my objectives. I officially began my data education with coursera with their: Data Science: Foundations using R Specialization (Here!!!), followed by: IBM Data Analyst Professional Certificate (Here!!!).
+My background in mathematics made it much easier for me to learn, integrate and use the various software programmes that were essential to achieving my objectives. I officially began my data education with coursera with their: Data Science: Foundations using R Specialization (https://www.coursera.org/specializations/data-science-foundations-r?), followed by: IBM Data Analyst Professional Certificate (https://www.coursera.org/professional-certificates/ibm-data-analyst).
 
 # Projects Description Examples
