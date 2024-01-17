@@ -1,0 +1,217 @@
+---
+title: "Data Exploration with RMS Titanic"
+author: "Ebenezer Bediam Nonbo"
+date: "2023-04-03"
+output: html_document
+---
+
+
+
+## Data Exploration with RMS Titanic
+
+
+```{r}
+#In a real data exploration project, there are six steps involved in the exploration process. They are as follows: Asking the right questions,Data collection,Data munging,Basic exploratory data analysis,Advanced exploratory data analysis,Model assessment.
+
+library(readxl)
+tested_xls<-read_excel("D:/BEDIAM/Ebenezer/Logiciels/R/Machine_learning/tested.xls.xlsx")
+View(tested_xls)
+str(tested_xls)
+
+# NB:In R,different measurements are calculated differently, so you should perform a type conversion before applying descriptive or inferential analytics toward the dataset.
+#Convert that column to a factor
+ tested_xls$ Pclass <- factor(tested_xls$ Pclass)
+ tested_xls$ Survived <- factor(tested_xls$ Survived)
+ str(tested_xls)
+
+```
+
+## 
+
+```{r}
+## Detecting missing values
+
+#The is.na function is used to denote which index of the attribute contains the NA. we apply it to the Age attribute first:
+ is.na(tested_xls$Age)
+#To get a general number of how many missing values there are
+ sum(is.na(tested_xls$Age) == TRUE)
+#To calculate the percentage of missing values
+ sum(is.na(tested_xls$Age) == TRUE) / length(tested_xls$Age)
+#To get a percentage of the missing value of the attributes
+ sapply(tested_xls, function(df) { + sum(is.na(df)==TRUE)/ length(df) } )
+#use the Amelia package to visualize the missing values 
+ #install.packages("Amelia")
+ library(Amelia)
+#Then, use the missmap function to plot the missing value map
+ missmap(tested_xls, main="Missing Map")
+#To start running AmeliaView, simply type AmeliaView() in the R Console
+
+```
+
+## 
+
+```{r}
+##Imputing missing values
+
+#Perform the following steps to impute the missing values
+#First, list the distribution of Port of Embarkation. Here, we add the useNA = "always" argument to show the number of NA values
+ table(tested_xls$Embarked, useNA = "always")
+#Assign the missing values to a more probable port (that is, the most counted port)
+ tested_xls$Embarked[which(is.na(tested_xls$Embarked))] = 'S';
+ table(tested_xls$Embarked, useNA = "always")
+#In order to discover the types of titles contained in the names of train.data
+ tested_xls$Name = as.character(tested_xls$Name)
+#we first tokenize train.data$Name by blank (a regular expression pattern as "\\s+")
+#then count the frequency of occurrence with the table function
+ table_words = table(unlist(strsplit(tested_xls$Name, "\\s+")))
+#we use the regular expression to grep the word containing the period
+ sort(table_words [grep('\\.',names(table_words))], decreasing=TRUE)
+#To obtain which title contains missing values, you can use str_match provided by the stringr package to get a substring containing a period
+#bind the column together with cbind
+ library(stringr) 
+ tb = cbind(tested_xls$Age, str_match(tested_xls$Name, " [a-zA-Z]+\\."))
+#using the table function to acquire the statistics of missing values
+ table(tb[is.na(tb[,1]),2])
+#Assign the mean value for each title (not containing a missing value)
+ tested_xls$Age <- as.numeric(tested_xls$Age)
+  mean.mr = mean(tested_xls$Age[grepl(" Mr\\.", tested_xls$Name) & !is.na(tested_xls$Age)])
+  mean.mrs = mean(tested_xls$Age[grepl(" Mrs\\.", tested_xls$Name) & !is.na(tested_xls$Age)])
+ mean.dr = mean(tested_xls$Age[grepl(" Dr\\.", tested_xls$Name) & !is.na(tested_xls$Age)])
+ mean.miss = mean(tested_xls$Age[grepl(" Miss\\.", tested_xls$Name) & !is.na(tested_xls$Age)])
+ mean.master = mean(tested_xls$Age[grepl(" Master\\.", tested_xls$Name) & !is.na(tested_xls$Age)])
+#Then, assign the missing value with the mean value of each title:
+ tested_xls$Age[grepl(" Mr\\.", tested_xls$Name) & is.na(tested_xls$Age)] = mean.mr
+ tested_xls$Age[grepl(" Mrs\\.", tested_xls$Name) & is.na(tested_xls$Age)] = mean.mrs 
+ tested_xls$Age[grepl(" Dr\\.", tested_xls$Name) & is.na(tested_xls$Age)] = mean.dr
+ tested_xls$Age[grepl(" Miss\\.", tested_xls$Name) & is.na(tested_xls$Age)] = mean.miss 
+ tested_xls$Age[grepl(" Master\\.", tested_xls$Name) & is.na(tested_xls$Age)] = mean.master 
+
+```
+
+## 
+
+```{r}
+## Exploring and visualizing data
+
+#First, you can use a bar plot and histogram to generate descriptive statistics for each attribute starting with passenger survival:
+ barplot(table(tested_xls$Survived), main="Passenger Survival", names= c("Perished", "Survived"))
+#We can generate the bar plot of passenger class
+ barplot(table(tested_xls$Pclass), main="Passenger Class", names= c("first", "second", "third"))
+#Next, we outline the gender data with the bar plot
+ barplot(table(tested_xls$Sex), main="Passenger Gender")
+#We then plot the histogram of the different ages with the hist function
+ hist(tested_xls$Age, main="Passenger Age", xlab = "Age")
+#We can plot the bar plot of sibling passengers to get the following
+ barplot(table(tested_xls$SibSp), main="Passenger Siblings")
+#Next, we can get the distribution of the passenger parch
+ barplot(table(tested_xls$Parch), main="Passenger Parch")
+#Next, we plot the histogram of the passenger fares
+ hist(tested_xls$Fare, main="Passenger Fare", xlab = "Fare")
+#Finally, one can look at the port of embarkation
+ barplot(table(tested_xls$Embarked), main="Port of Embarkation")
+#Use barplot to find out which gender is more likely to perish during shipwrecks
+ counts = table( tested_xls$Survived, tested_xls$Sex)
+ barplot(counts, col=c("darkblue","red"), legend = c("Perished", "Survived"), main = "Passenger Survival by Sex")
+#Next, we should examine whether the Pclass factor of each passenger may affect the survival rate 
+ counts = table( tested_xls$Survived, tested_xls$Pclass)
+ barplot(counts, col=c("darkblue","red"), legend =c("Perished", "Survived"), main= "Titanic Class Bar Plot" )  
+#Next, we examine the gender composition of each Pclass
+ counts = table( tested_xls$Sex, tested_xls$Pclass)
+ barplot(counts, col=c("darkblue","red"), legend = rownames(counts), main= "Passenger Gender by Class")  
+#Furthermore, we examine the histogram of passenger ages (Launch both graphs at the same time) 
+ hist(tested_xls$Age[which(tested_xls$Survived == "0")], main= "Passenger Age Histogram", xlab="Age", ylab="Count", col ="blue", breaks=seq(0,80,by=2))
+ hist(tested_xls$Age[which(tested_xls$Survived == "1")], col ="red", add = T, breaks=seq(0,80,by=2)) 
+#To examine more details about the relationship between the age and survival rate, one can use a boxplot  
+boxplot(tested_xls$Age ~ tested_xls$Survived) 
+#To categorize people with different ages into different groups, such as children (below 13), youths (13 to 19), adults (20 to 65), and senior citizens (above 65), execute the following commands
+ train.child = tested_xls$Survived[tested_xls$Age < 13]
+ length(train.child[which(train.child == 1)] ) / length(train.child)
+ 
+ train.youth = tested_xls$Survived[tested_xls$Age >= 15 & tested_xls$Age < 25]
+ length(train.youth[which(train.youth == 1)] ) / length(train.youth)
+ 
+ train.adult = tested_xls$Survived[tested_xls$Age >= 20 & tested_xls$Age < 65]
+ length(train.adult[which(train.adult == 1)] ) / length(train.adult)
+ 
+ train.senior = tested_xls$Survived[tested_xls$Age >= 65]
+ length(train.senior[which(train.senior == 1)] ) / length(train.senior)
+ #one can also apply mosaicplot in the vcd package to examine the relationship between multiple categorical variables
+  mosaicplot(tested_xls$Pclass ~ tested_xls$Survived,color=TRUE) 
+
+```
+
+## 
+
+```{r}
+## Predicting passenger survival with a decision tree
+  
+#The exploratory analysis helps users gain insights into how single or multiple variables may affect the survival rate. However, it does not determine what combinations may generate a prediction model, so as to predict the passengers' survival 
+#On the other hand, machine learning can generate a prediction model from a training dataset 
+ tested_xls$Sex <- as.factor(tested_xls$Sex)
+ tested_xls$Fare <- as.factor(tested_xls$Fare)
+ tested_xls$Embarked <- as.factor(tested_xls$Embarked)
+# Data Partition:
+ set.seed(123)
+ ind <- sample(2,nrow(tested_xls),replace = TRUE,prob = c(0.7,0.3))
+ train <- tested_xls[ind==1,]
+ test <- tested_xls[ind==2,] 
+#For the condition tree, one has to use the ctree function from the party package; therefore, we install and load the party package:  
+ install.packages('party')
+ library(party)
+#We then use Survived as a label to generate the prediction model in use. After that, we assign the classification tree model into the train.ctree variable 
+ train.ctree = ctree(Survived ~ Pclass + Sex + Age + SibSp + Fare + Parch + Embarked, data=train)
+ train.ctree 
+#We use a plot function to plot the tree
+ plot(train.ctree, main="Conditional inference tree of Titanic Dataset") 
+#Besides ctree, one can also use svm to generate a prediction model. To load the svm 
+ install.packages('e1071')
+ library(e1071)
+ svm.model = svm(Survived ~ Pclass + Sex + Age + SibSp + Fare + Parch + Embarked, data = train, probability = TRUE)
+ svm.model 
+
+```
+
+## 
+
+```{r}
+## Validating the power of prediction with a confusion matrix
+ 
+#For now, users will learn to validate how well ctree performs in a survival prediction via the use of a confusion matrix.
+#We start using the constructed train.ctree model to predict the survival of the testing set 
+ ctree.predict = predict(train.ctree, test) 
+#First, we install the caret package, and then load it:
+ install.packages("caret")
+ library(caret) 
+#After loading caret, one can use a confusion matrix to generate the statistics of the output matrix:
+confusionMatrix(ctree.predict, test$Survived) 
+#NB:One may generate a better prediction model by tuning the attribute used, or by replacing the classification algorithm to SVM, glm, or random forest.
+
+```
+
+```
+
+## 
+
+```{r}
+## Assessing performance with the ROC curve
+
+#Another measurement is by using the ROC curve (this requires the ROCR package)
+#which plots a curve according to its true positive rate against its false positive rate
+#be sure that the generated training set, testing dataset, and built prediction model, ctree.predict, are within the R session
+#Prepare the probability matrix:
+ train.ctree.pred = predict(train.ctree, test)
+ train.ctree.prob = 1- unlist(treeresponse(train.ctree, test), use.names=F)[seq(1,nrow(test)*2,2)]
+#Install and load the ROCR package:
+ install.packages("ROCR")
+ library(ROCR)
+#Create an ROCR prediction object from probabilities
+ train.ctree.prob.rocr = prediction(train.ctree.prob,test$Survived)
+#Prepare the ROCR performance object for the ROC curve (tpr=true positive rate, fpr=false positive rate) and the area under curve (AUC)
+ train.ctree.perf = performance(train.ctree.prob.rocr, "tpr","fpr")
+ train.ctree.auc.perf = performance(train.ctree.prob.rocr, measure = "auc", x.measure = "cutoff")
+#Plot the ROC curve, with colorize as TRUE, and put AUC as the title: 
+  plot(train.ctree.perf, col=2,colorize=T, main=paste("AUC:", train.ctree.auc.perf@y.values))
+  
+```
+
+## 
